@@ -1,9 +1,17 @@
+"""
+Sunscreen Dosage Lambda Function
+
+This feature fetches UV index data and provides sunscreen dosage guidance.
+"""
+
 import json
 import urllib.request
 
 
 def get_risk_level(uv):
-
+    """
+    Figures out how dangerous the sun is right now.
+    """
     if uv < 3:
         return "Low"
     elif uv < 6:
@@ -15,7 +23,11 @@ def get_risk_level(uv):
     else:
         return "Extreme"
 
+
 def get_sunscreen_dosage(uv):
+    """
+    How much sunscreen to slap on based on UV level.
+    """
     if uv < 3:
         return {
             "label": "Low coverage",
@@ -43,6 +55,9 @@ def get_sunscreen_dosage(uv):
         }   
     
 def get_usage_guidance(uv):
+    """
+    Gives practical tips on how to use sunscreen properly.
+    """
     if uv < 3:
         return [
             "Basic sun protection is recommended for long outdoor exposure.",
@@ -61,7 +76,11 @@ def get_usage_guidance(uv):
             "Reapply every 2 hours or after sweating or swimming."
         ]    
 
+
 def get_protection_explanation(uv):
+    """
+    Explains why users need that much sunscreen in plain English.
+    """
     if uv < 3:
         return (
             "A basic amount of sunscreen can help protect exposed skin during low UV conditions, "
@@ -88,20 +107,27 @@ def get_protection_explanation(uv):
             "damage skin more quickly. A sufficient amount helps improve protection across exposed skin."
         )
 
-def lambda_handler(event, context):
-    # TODO implement
-    try:
 
+def lambda_handler(event, context):
+    """
+    The main entry point for our Lambda function.
+    Takes in location coords, fetches UV data, and returns sunscreen advice.
+    """
+    try:
+        # Grab query params from the request, or use Melbourne as default
         params = event.get("queryStringParameters") or {}
 
+        # Default coords point to Melbourne
         lat = float(params.get("lat", "-37.8136"))
         lon = float(params.get("lon", "144.9631"))
 
+        # Build the URL for the Open-Meteo API
         url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=uv_index"
 
-        # External API call with timeout
+        # Hit the external API, but don't wait forever (3 sec timeout)
         response = urllib.request.urlopen(url, timeout=3)
 
+        # Parse the JSON response
         data = json.loads(response.read())
 
         # Debug log (CloudWatch)
