@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Latest News - UV Awareness - Happy Sun</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">
+      <span class="brand-logo">
+        <img src="images/logo.png" alt="" class="header-logo-img" />
+      </span>
+      <span class="brand-name">Happy Sun</span>
+      <span class="brand-tagline">Your Sun Protection Partner</span>
+    </a>
+  </header>
+
+  <main>
+    <nav class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span>›</span>
+      <a href="uv-awareness.html">UV Awareness</a>
+      <span>›</span>
+      <span>Latest News</span>
+    </nav>
+
+    <div class="tabs">
+      <a href="uv-visual-graphs.html" class="tab" data-action="tab" data-tab="visual-graph">Visual Graphs</a>
+      <a href="uv-vs-safety.html" class="tab" data-action="tab" data-tab="uv-vs">UV vs Safety Tips</a>
+      <a href="uv-latest-news.html" class="tab active" data-action="tab" data-tab="latest-news">Latest News</a>
+    </div>
+
+    <div id="news-status" class="muted">Loading latest UV news...</div>
+    <div id="news-list" class="news-list"></div>
+    
+  </main>
+
+  <footer class="site-footer">
+    <p>© Happy Sun — Your Sun Protection Partner</p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
+

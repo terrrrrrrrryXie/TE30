@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UV Skin Type - Happy Sun</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">
+      <span class="brand-logo">
+        <img src="images/logo.png" alt="" class="header-logo-img">
+      </span>
+      <span class="brand-name">Happy Sun</span>
+      <span class="brand-tagline">Your Sun Protection Partner</span>
+    </a>
+  </header>
+
+  <main>
+    <nav class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span>›</span>
+      <span>UV Skin Type</span>
+    </nav>
+
+    <div class="skin-type-layout">
+      <section class="skin-type-options">
+        <h2 class="page-title">
+          Understand the skin type and how it reacts to the UV.
+        </h2>
+        <p class="muted">
+          Select the type that you relate to the most. Your skin type affects how quickly you burn and how much protection you need.
+        </p>
+
+        <div class="skin-type-grid">
+          <button type="button"
+                  class="skin-type-swatch"
+                  data-action="skin-type"
+                  data-type-id="type1"
+                  data-type-title="Type I - Very Fair"
+                  data-type-description="Pale white skin, often burns, rarely tans. Light hair and eye colour."
+                  data-type-sensitivity="Very high"
+                  data-type-protection="Highest priority">
+            <span class="skin-chip chip-type1"></span>
+            <span class="skin-type-label">Type I - Very Fair</span>
+          </button>
+
+          <button type="button"
+                  class="skin-type-swatch"
+                  data-action="skin-type"
+                  data-type-id="type2"
+                  data-type-title="Type II - Fair"
+                  data-type-description="Fair skin, burns easily and tans minimally."
+                  data-type-sensitivity="Very high"
+                  data-type-protection="Highest priority">
+            <span class="skin-chip chip-type2"></span>
+            <span class="skin-type-label">Type II - Fair</span>
+          </button>
+
+          <button type="button"
+                  class="skin-type-swatch"
+                  data-action="skin-type"
+                  data-type-id="type3"
+                  data-type-title="Type III - Medium"
+                  data-type-description="Medium or light brown skin, sometimes burns, gradually tans."
+                  data-type-sensitivity="High"
+                  data-type-protection="High priority">
+            <span class="skin-chip chip-type3"></span>
+            <span class="skin-type-label">Type III - Medium</span>
+          </button>
+
+          <button type="button"
+                  class="skin-type-swatch"
+                  data-action="skin-type"
+                  data-type-id="type4"
+                  data-type-title="Type IV - Olive"
+                  data-type-description="Olive or moderate brown skin, rarely burns, tans easily."
+                  data-type-sensitivity="Moderate"
+                  data-type-protection="High priority">
+            <span class="skin-chip chip-type4"></span>
+            <span class="skin-type-label">Type IV - Olive</span>
+          </button>
+
+          <button type="button"
+                  class="skin-type-swatch"
+                  data-action="skin-type"
+                  data-type-id="type5"
+                  data-type-title="Type V - Brown"
+                  data-type-description="Brown skin, rarely burns and tans very easily."
+                  data-type-sensitivity="Low (but still vulnerable)"
+                  data-type-protection="High priority">
+            <span class="skin-chip chip-type5"></span>
+            <span class="skin-type-label">Type V - Brown</span>
+          </button>
+
+          <button type="button"
+                  class="skin-type-swatch selected"
+                  data-action="skin-type"
+                  data-type-id="type6"
+                  data-type-title="Type VI - Dark Brown/Black"
+                  data-type-description="Dark brown to black skin. Black hair. Brown eyes."
+                  data-type-sensitivity="Low (but still vulnerable)"
+                  data-type-protection="High priority">
+            <span class="skin-chip chip-type6"></span>
+            <span class="skin-type-label">Type VI - Dark Brown/Black</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="skin-type-selection">
+        <h2 class="page-title">You Selected:</h2>
+
+        <div class="skin-type-selected-card">
+          <div class="skin-chip chip-type6" id="selected-skin-chip"></div>
+          <div class="skin-selected-text">
+            <div id="selected-skin-title" class="skin-selected-title">
+              Type VI - Dark Brown/Black
+            </div>
+            <p id="selected-skin-description" class="muted">
+              Dark brown to black skin. Black hair. Brown eyes.
+            </p>
+          </div>
+        </div>
+
+        <div class="skin-stats">
+          <div class="skin-stat">
+            UV Sensitivity
+            <span id="selected-uv-sensitivity">Low (but still vulnerable)</span>
+          </div>
+          <div class="skin-stat">
+            Protection Level
+            <span id="selected-protection-level">High priority</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© Happy Sun — Your Sun Protection Partner</p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+Put your logo image here (e.g. logo.png).
+Then in index.html, set: <img src="images/logo.png" ...>
