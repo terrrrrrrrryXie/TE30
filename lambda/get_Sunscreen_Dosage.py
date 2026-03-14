@@ -27,33 +27,40 @@ def get_risk_level(uv):
 def get_sunscreen_dosage(uv):
     """
     How much sunscreen to slap on based on UV level.
+    Returns tsp, pumps, and reapply interval.
     """
     if uv < 3:
         return {
-            "label": "Low coverage",
-            "estimated_amount": "Minimal sunscreen needed for short outdoor exposure."
+            "tsp": 0.5,
+            "pumps": 2,
+            "reapply_minutes": 180
         }
     elif uv < 6:
         return {
-            "label": "Moderate coverage",
-            "estimated_amount": "Apply a light amount of sunscreen to exposed skin."
+            "tsp": 1,
+            "pumps": 4,
+            "reapply_minutes": 150
         }
     elif uv < 8:
         return {
-            "label": "High coverage",
-            "estimated_amount": "Apply a full and even layer of sunscreen to all exposed skin."
+            "tsp": 1.5,
+            "pumps": 6,
+            "reapply_minutes": 120
         }
     elif uv < 11:
         return {
-            "label": "Very high coverage",
-            "estimated_amount": "Apply a generous amount of SPF 50+ sunscreen to all exposed skin."
+            "tsp": 2,
+            "pumps": 8,
+            "reapply_minutes": 90
         }
     else:
         return {
-            "label": "Maximum coverage",
-            "estimated_amount": "Apply maximum SPF 50+ coverage and minimise direct sun exposure."
-        }   
-    
+            "tsp": 2.5,
+            "pumps": 10,
+            "reapply_minutes": 60
+        }
+
+
 def get_usage_guidance(uv):
     """
     Gives practical tips on how to use sunscreen properly.
@@ -67,14 +74,14 @@ def get_usage_guidance(uv):
         return [
             "Apply sunscreen before going outdoors.",
             "Cover exposed skin evenly.",
-            "Reapply if outdoors for an extended period."
+            "Reapply after swimming or heavy sweating."
         ]
     else:
         return [
             "Apply SPF 50+ sunscreen 20 minutes before going outdoors.",
             "Cover all exposed skin evenly.",
-            "Reapply every 2 hours or after sweating or swimming."
-        ]    
+            "Reapply after swimming or heavy sweating."
+        ]
 
 
 def get_protection_explanation(uv):
@@ -134,24 +141,18 @@ def lambda_handler(event, context):
         print(data)
 
         uv_index = data["current"]["uv_index"]
-        current_time = data["current"]["time"]
 
-        risk = get_risk_level(uv_index)
-        dosage = get_sunscreen_dosage(uv_index)
-        guidance = get_usage_guidance(uv_index)
-        protection_explanation = get_protection_explanation(uv_index)
-
+        # Build the response with all sunscreen guidance
         result = {
             "location": {
                 "lat": lat,
                 "lon": lon
             },
             "uv_index": uv_index,
-            "risk_level": risk,
-            "dosage": dosage,
-            "guidance": guidance,
-            "protection_explanation": protection_explanation,
-            "timestamp": current_time
+            "risk_level": get_risk_level(uv_index),
+            "dosage": get_sunscreen_dosage(uv_index),
+            "guidance": get_usage_guidance(uv_index),
+            "protection_explanation": get_protection_explanation(uv_index)
         }
         return {
             "statusCode": 200,
