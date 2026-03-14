@@ -36,6 +36,34 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
 
         document.getElementById('conditionValue').textContent =
           'Conditions: ' + parsed.condition;
+
+        // Update materials list
+        var materialsEl = document.getElementById('materialsList');
+        if (materialsEl && Array.isArray(parsed.clothing_materials)) {
+          materialsEl.innerHTML = '';
+          parsed.clothing_materials.forEach(function (material) {
+            var li = document.createElement('li');
+            li.textContent = material;
+            materialsEl.appendChild(li);
+          });
+        }
+
+        // Update recommended items list
+        var itemsEl = document.getElementById('itemsList');
+        if (itemsEl && Array.isArray(parsed.recommended_items)) {
+          itemsEl.innerHTML = '';
+          parsed.recommended_items.forEach(function (item) {
+            var li = document.createElement('li');
+            li.textContent = item;
+            itemsEl.appendChild(li);
+          });
+        }
+
+        // Update explanation text
+        var explanationEl = document.getElementById('explanationText');
+        if (explanationEl && parsed.explanation) {
+          explanationEl.textContent = parsed.explanation;
+        }
       })
       .catch(function (error) {
         console.error('Failed to fetch clothing recommendation:', error);
@@ -43,12 +71,51 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
   }
 
   function onGetUvIndex() {
-    fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
+    var locationInput = document.getElementById('locationInput');
+    var query = locationInput ? locationInput.value.trim() : '';
+
+    if (!query) {
+      // No input, use default Melbourne coordinates
+      fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
+      return;
+    }
+
+    // Use Open-Meteo Geocoding API to convert city name to coordinates
+    var geocodeUrl = 'https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(query) + '&count=1&language=en&format=json';
+
+    fetch(geocodeUrl)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Geocoding failed: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        if (data.results && data.results.length > 0) {
+          var result = data.results[0];
+          console.log('Geocoded location:', result.name, result.latitude, result.longitude);
+          fetchClothingData(result.latitude, result.longitude);
+        } else {
+          console.warn('Location not found, using default');
+          alert('Location "' + query + '" not found. Using default location.');
+          fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
+        }
+      })
+      .catch(function (error) {
+        console.error('Geocoding error:', error);
+        alert('Failed to find location. Using default location.');
+        fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
+      });
   }
 
   function autoLocateAndFetch() {
+    var locationInput = document.getElementById('locationInput');
+
     if (!navigator.geolocation) {
       console.log('Geolocation not supported, using default location');
+      if (locationInput) {
+        locationInput.placeholder = 'Using default: Melbourne (location unavailable)';
+      }
       fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
       return;
     }
@@ -58,11 +125,17 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
         console.log('User location:', lat, lon);
+        if (locationInput) {
+          locationInput.placeholder = 'Using your current location';
+        }
         fetchClothingData(lat, lon);
       },
       function (error) {
         console.warn('Geolocation error:', error.message);
         console.log('Using default location');
+        if (locationInput) {
+          locationInput.placeholder = 'Using default: Melbourne (location access denied)';
+        }
         fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
       },
       {
@@ -73,7 +146,7 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     );
   }
 
-  function fetchSunscreenData(lat, lon) {
+  function fetchSunscreenData(lat, lon, isDefault) {
     fetch(API_BASE + '/sunscreen-dosage?lat=' + lat + '&lon=' + lon)
       .then(function (response) {
         if (!response.ok) {
@@ -91,13 +164,13 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
 
         var uvBadge = document.getElementById('sunscreen-uv-badge');
         if (uvBadge) {
-          uvBadge.textContent = 'UV ' + parsed.uv_index;
+          uvBadge.textContent = parsed.uv_index + ' ' + parsed.risk_level;
           var riskClass = parsed.risk_level.toLowerCase().replace(' ', '-');
           uvBadge.className = 'uv-badge ' + riskClass;
         }
 
         var locationEl = document.getElementById('sunscreen-location');
-        if (locationEl) {
+        if (locationEl && !isDefault) {
           locationEl.textContent = 'Based on your current location • ' + parsed.risk_level + ' risk';
         }
 
@@ -136,9 +209,14 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
   }
 
   function autoLocateAndFetchSunscreen() {
+    var locationEl = document.getElementById('sunscreen-location');
+
     if (!navigator.geolocation) {
       console.log('Geolocation not supported, using default location for sunscreen');
-      fetchSunscreenData(DEFAULT_LAT, DEFAULT_LON);
+      if (locationEl) {
+        locationEl.textContent = 'Using default location: Melbourne (location unavailable)';
+      }
+      fetchSunscreenData(DEFAULT_LAT, DEFAULT_LON, true);
       return;
     }
 
@@ -147,11 +225,86 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
         console.log('User location for sunscreen:', lat, lon);
-        fetchSunscreenData(lat, lon);
+        fetchSunscreenData(lat, lon, false);
       },
       function (error) {
         console.warn('Geolocation error for sunscreen:', error.message);
-        fetchSunscreenData(DEFAULT_LAT, DEFAULT_LON);
+        if (locationEl) {
+          locationEl.textContent = 'Using default location: Melbourne (location access denied)';
+        }
+        fetchSunscreenData(DEFAULT_LAT, DEFAULT_LON, true);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
+  }
+
+  function fetchUvTrackerData(lat, lon, isDefault) {
+    // Use the same API as clothing to get UV data
+    fetch(API_BASE + '/clothing-recommendation?lat=' + lat + '&lon=' + lon)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Failed to fetch UV data: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        console.log('UV Tracker API response:', data);
+
+        var parsed = data;
+        if (typeof data.body === 'string') {
+          parsed = JSON.parse(data.body);
+        }
+
+        var uvBadge = document.getElementById('tracker-uv-badge');
+        if (uvBadge) {
+          uvBadge.textContent = parsed.uv_index + ' ' + parsed.risk_level;
+          var riskClass = parsed.risk_level.toLowerCase().replace(' ', '-');
+          uvBadge.className = 'uv-badge ' + riskClass;
+        }
+
+        var locationEl = document.getElementById('tracker-location');
+        if (locationEl && !isDefault) {
+          locationEl.textContent = 'Based on your current location • ' + parsed.risk_level + ' risk';
+        }
+      })
+      .catch(function (error) {
+        console.error('Failed to fetch UV tracker data:', error);
+        var locationEl = document.getElementById('tracker-location');
+        if (locationEl) {
+          locationEl.textContent = 'Could not load UV data. Please try again later.';
+        }
+      });
+  }
+
+  function autoLocateAndFetchUvTracker() {
+    var locationEl = document.getElementById('tracker-location');
+
+    if (!navigator.geolocation) {
+      console.log('Geolocation not supported, using default location for UV tracker');
+      if (locationEl) {
+        locationEl.textContent = 'Using default location: Melbourne (location unavailable)';
+      }
+      fetchUvTrackerData(DEFAULT_LAT, DEFAULT_LON, true);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        console.log('User location for UV tracker:', lat, lon);
+        fetchUvTrackerData(lat, lon, false);
+      },
+      function (error) {
+        console.warn('Geolocation error for UV tracker:', error.message);
+        if (locationEl) {
+          locationEl.textContent = 'Using default location: Melbourne (location access denied)';
+        }
+        fetchUvTrackerData(DEFAULT_LAT, DEFAULT_LON, true);
       },
       {
         enableHighAccuracy: false,
@@ -329,6 +482,11 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     // automatically load sunscreen data on sunscreen-guide page
     if (document.getElementById('sunscreen-uv-badge')) {
       autoLocateAndFetchSunscreen();
+    }
+
+    // automatically load UV data on uv-tracker page
+    if (document.getElementById('tracker-uv-badge')) {
+      autoLocateAndFetchUvTracker();
     }
 
     document.querySelectorAll('[data-action="option"]').forEach(function (card) {
