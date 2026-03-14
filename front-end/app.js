@@ -341,11 +341,17 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     var descEl = document.getElementById('selected-skin-description');
     var sensEl = document.getElementById('selected-uv-sensitivity');
     var protEl = document.getElementById('selected-protection-level');
+    var chipEl = document.getElementById('selected-skin-chip');
 
     if (titleEl) titleEl.textContent = title;
     if (descEl) descEl.textContent = description;
     if (sensEl) sensEl.textContent = sensitivity;
     if (protEl) protEl.textContent = protection;
+
+    // Update the skin chip color
+    if (chipEl) {
+      chipEl.className = 'skin-chip chip-' + typeId;
+    }
   }
 
   function escapeHtml(value) {
