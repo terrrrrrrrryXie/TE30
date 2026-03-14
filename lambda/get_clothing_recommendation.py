@@ -20,109 +20,260 @@ def get_risk_level(uv):
         return "Extreme"
 
 
-def get_clothing_recommendation(uv):
+def get_clothing_recommendation(uv, temperature):
+    """
+    Returns clothing recommendations based on UV index and temperature.
+    Temperature categories: Hot (>25°C), Warm (15-25°C), Cold (<15°C)
+    """
+    is_hot = temperature > 25
+    is_cold = temperature < 15
 
+    # Low UV (< 3)
     if uv < 3:
-        return {
-            "materials": [
-                "Light cotton clothing",
-                "Breathable fabrics"
-            ],
-            "recommended_items": [
-                "Sunglasses",
-                "Light hat"
-            ]
-        }
+        if is_hot:
+            return {
+                "materials": [
+                    "Light and breathable cotton",
+                    "Moisture-wicking fabrics"
+                ],
+                "recommended_items": [
+                    "Sunglasses",
+                    "Light hat or cap",
+                    "Loose-fitting t-shirt or tank top"
+                ]
+            }
+        elif is_cold:
+            return {
+                "materials": [
+                    "Warm layered clothing",
+                    "Insulated fabrics"
+                ],
+                "recommended_items": [
+                    "Warm jacket or sweater",
+                    "Long pants",
+                    "Beanie or warm hat"
+                ]
+            }
+        else:
+            return {
+                "materials": [
+                    "Light cotton clothing",
+                    "Breathable fabrics"
+                ],
+                "recommended_items": [
+                    "Sunglasses",
+                    "Light hat",
+                    "Comfortable casual wear"
+                ]
+            }
 
+    # Moderate UV (3-6)
     elif uv < 6:
-        return {
-            "materials": [
-                "Tightly woven cotton",
-                "Breathable long-sleeve fabrics"
-            ],
-            "recommended_items": [
-                "Hat",
-                "Sunglasses",
-                "Light long-sleeve shirt"
-            ]
-        }
+        if is_hot:
+            return {
+                "materials": [
+                    "Lightweight tightly woven cotton",
+                    "Breathable UV-protective fabrics"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "Sunglasses",
+                    "Light long-sleeve shirt for sun protection"
+                ]
+            }
+        elif is_cold:
+            return {
+                "materials": [
+                    "Warm tightly woven fabrics",
+                    "Layered clothing with UV protection"
+                ],
+                "recommended_items": [
+                    "Warm jacket with collar",
+                    "Long pants",
+                    "Sunglasses",
+                    "Warm hat"
+                ]
+            }
+        else:
+            return {
+                "materials": [
+                    "Tightly woven cotton",
+                    "Breathable long-sleeve fabrics"
+                ],
+                "recommended_items": [
+                    "Hat",
+                    "Sunglasses",
+                    "Light long-sleeve shirt"
+                ]
+            }
 
+    # High UV (6-8)
     elif uv < 8:
-        return {
-            "materials": [
-                "Tightly woven fabrics",
-                "Denim or canvas materials"
-            ],
-            "recommended_items": [
-                "Wide-brim hat",
-                "Long sleeve shirt",
-                "UV protective sunglasses"
-            ]
-        }
+        if is_hot:
+            return {
+                "materials": [
+                    "Lightweight UPF-rated fabrics",
+                    "Breathable sun-protective clothing"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "UV protective sunglasses",
+                    "Lightweight long-sleeve UV shirt",
+                    "Light-colored clothing to stay cool"
+                ]
+            }
+        elif is_cold:
+            return {
+                "materials": [
+                    "Warm UPF-rated fabrics",
+                    "Insulated sun-protective clothing"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat or warm beanie",
+                    "UV protective sunglasses",
+                    "Warm long-sleeve jacket",
+                    "Long pants"
+                ]
+            }
+        else:
+            return {
+                "materials": [
+                    "Tightly woven fabrics",
+                    "Denim or canvas materials"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "Long sleeve shirt",
+                    "UV protective sunglasses"
+                ]
+            }
 
+    # Very High UV (8-11)
     elif uv < 11:
-        return {
-            "materials": [
-                "UPF-rated UV protective fabrics",
-                "Tightly woven clothing"
-            ],
-            "recommended_items": [
-                "Wide-brim hat",
-                "Long sleeve UV-protective shirt",
-                "Sunglasses with UV protection"
-            ]
-        }
+        if is_hot:
+            return {
+                "materials": [
+                    "Lightweight UPF 50+ fabrics",
+                    "Moisture-wicking sun-protective clothing"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "UV-blocking sunglasses",
+                    "Lightweight long-sleeve UPF shirt",
+                    "Light-colored loose clothing"
+                ]
+            }
+        elif is_cold:
+            return {
+                "materials": [
+                    "Warm UPF 50+ fabrics",
+                    "Insulated UV-protective layers"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "UV-blocking sunglasses",
+                    "Warm long-sleeve UPF jacket",
+                    "Long pants with UV protection"
+                ]
+            }
+        else:
+            return {
+                "materials": [
+                    "UPF-rated UV protective fabrics",
+                    "Tightly woven clothing"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "Long sleeve UV-protective shirt",
+                    "Sunglasses with UV protection"
+                ]
+            }
 
+    # Extreme UV (>= 11)
     else:
-        return {
-            "materials": [
-                "UPF-rated clothing",
-                "Full coverage UV protective fabrics"
-            ],
-            "recommended_items": [
-                "Wide-brim hat",
-                "Full sleeve UV protective clothing",
-                "UV-blocking sunglasses"
-            ]
-        }
+        if is_hot:
+            return {
+                "materials": [
+                    "Lightweight UPF 50+ clothing",
+                    "Maximum breathable sun protection"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "UV-blocking sunglasses",
+                    "Full coverage lightweight UPF clothing",
+                    "Seek shade whenever possible"
+                ]
+            }
+        elif is_cold:
+            return {
+                "materials": [
+                    "Warm UPF 50+ clothing",
+                    "Full coverage insulated sun protection"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "UV-blocking sunglasses",
+                    "Warm full coverage UPF clothing",
+                    "Minimize direct sun exposure"
+                ]
+            }
+        else:
+            return {
+                "materials": [
+                    "UPF-rated clothing",
+                    "Full coverage UV protective fabrics"
+                ],
+                "recommended_items": [
+                    "Wide-brim hat",
+                    "Full sleeve UV protective clothing",
+                    "UV-blocking sunglasses"
+                ]
+            }
 
 
-def get_clothing_explanation(uv):
+def get_clothing_explanation(uv, temperature):
+    """
+    Returns explanation based on UV index and temperature.
+    """
+    is_hot = temperature > 25
+    is_cold = temperature < 15
 
+    # Temperature context
+    if is_hot:
+        temp_context = "With high temperatures, choose lightweight and breathable fabrics to stay cool while protected."
+    elif is_cold:
+        temp_context = "With cooler temperatures, layered clothing provides both warmth and UV protection."
+    else:
+        temp_context = "Current temperatures are comfortable for most outdoor clothing options."
+
+    # UV context
     if uv < 3:
-        return (
-            "Light clothing and basic sun protection are usually sufficient "
-            "during low UV conditions. However, wearing sunglasses and hats "
-            "can still help protect sensitive areas."
+        uv_context = (
+            "Low UV levels mean minimal sun protection is needed. "
+            "Basic clothing choices are usually sufficient."
         )
-
     elif uv < 6:
-        return (
-            "Moderate UV levels mean some protection is needed. "
-            "Clothing made from tightly woven fabrics helps reduce "
-            "UV exposure to the skin."
+        uv_context = (
+            "Moderate UV levels mean some sun protection is recommended. "
+            "Tightly woven fabrics help reduce UV exposure."
         )
-
     elif uv < 8:
-        return (
-            "At high UV levels, clothing becomes an important barrier "
-            "against UV radiation. Long sleeves and hats help protect "
-            "areas such as the arms, neck, and face."
+        uv_context = (
+            "High UV levels require good sun protection. "
+            "Long sleeves and hats help protect exposed skin."
         )
-
     elif uv < 11:
-        return (
+        uv_context = (
             "Very high UV levels require strong sun protection. "
-            "UPF-rated clothing and wide-brim hats significantly reduce "
-            "UV exposure to sensitive areas of the body."
+            "UPF-rated clothing significantly reduces UV exposure."
+        )
+    else:
+        uv_context = (
+            "Extreme UV levels can damage skin quickly. "
+            "Full coverage UV-protective clothing is essential."
         )
 
-    else:
-        return (
-            "Extreme UV levels can damage skin very quickly. "
-            "Full coverage clothing and UV-protective fabrics help "
-            "minimise direct sun exposure."
-        )
+    return f"{uv_context} {temp_context}"
 
 def get_weather_condition(weather_code):
     weather_map = {
@@ -190,8 +341,8 @@ def lambda_handler(event, context):
             raise ValueError("UV index not found in weather response")
 
         risk = get_risk_level(uv_index)
-        clothing = get_clothing_recommendation(uv_index)
-        explanation = get_clothing_explanation(uv_index)
+        clothing = get_clothing_recommendation(uv_index, temperature)
+        explanation = get_clothing_explanation(uv_index, temperature)
         condition = get_weather_condition(weather_code)
 
         result = {
