@@ -25,10 +25,18 @@
     </nav>
 
     <div class="content-card">
-      <h2>Current UV & Weather</h2>
+      <h2>Current UV &amp; Weather</h2>
       <form class="form-inline">
-        <input type="text" placeholder="Enter location (e.g. Clayton VIC)" />
-        <button type="button" class="get-uv-btn">
+        <input
+          type="text"
+          id="locationInput"
+          placeholder="Enter location (e.g. Clayton VIC)"
+        />
+        <button
+          type="button"
+          class="get-uv-btn"
+          data-action="get-uv-index"
+        >
           Get UV &amp; weather
         </button>
       </form>
@@ -36,20 +44,20 @@
       <div class="two-col">
         <div class="mini-card">
           <h3>UV Index</h3>
-          <p class="big">--</p>
-          <p class="muted">Risk category: --</p>
+          <p class="big" id="uvValue">--</p>
+          <p class="muted" id="riskValue">Risk category: --</p>
         </div>
         <div class="mini-card">
           <h3>Temperature</h3>
-          <p class="big">-- °C</p>
-          <p class="muted">Conditions: --</p>
+          <p class="big" id="tempValue">-- °C</p>
+          <p class="muted" id="conditionValue">Conditions: --</p>
         </div>
       </div>
     </div>
 
     <div class="content-card">
       <h2>Suggested Materials</h2>
-      <ul class="bullet">
+      <ul class="bullet" id="materialsList">
         <li>Tightly woven fabrics (denim, canvas, polyester blends).</li>
         <li>UPF-rated clothing for extended outdoor time.</li>
         <li>Darker or bright colours can block more UV than pale colours.</li>
@@ -58,18 +66,20 @@
 
     <div class="content-card">
       <h2>Outfit Recommendations</h2>
-      <ul class="bullet">
+      <ul class="bullet" id="itemsList">
         <li>Wide-brimmed hat and UV-blocking sunglasses.</li>
         <li>Long-sleeved shirt and long pants when UV is high or extreme.</li>
         <li>Lightweight, breathable fabrics to stay cool while protected.</li>
       </ul>
+
+      <p class="muted" id="explanationText"></p>
     </div>
   </main>
 
   <footer class="site-footer">
     <p>© Happy Sun — Your Sun Protection Partner</p>
   </footer>
+
   <script src="app.js"></script>
 </body>
 </html>
-

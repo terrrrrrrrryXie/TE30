@@ -7,9 +7,158 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
 (function () {
   'use strict';
 
+  // default coordinates (Melbourne)
+  var DEFAULT_LAT = -37.8136;
+  var DEFAULT_LON = 144.9631;
+
+  function fetchClothingData(lat, lon) {
+    fetch(API_BASE + '/clothing-recommendation?lat=' + lat + '&lon=' + lon)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Failed to fetch clothing data: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        console.log('Clothing API response:', data);
+
+        var parsed = data;
+        if (typeof data.body === 'string') {
+          parsed = JSON.parse(data.body);
+        }
+
+        document.getElementById('uvValue').textContent = parsed.uv_index;
+        document.getElementById('riskValue').textContent =
+          'Risk category: ' + parsed.risk_level;
+
+        document.getElementById('tempValue').textContent =
+          parsed.temperature + ' °C';
+
+        document.getElementById('conditionValue').textContent =
+          'Conditions: ' + parsed.condition;
+      })
+      .catch(function (error) {
+        console.error('Failed to fetch clothing recommendation:', error);
+      });
+  }
+
   function onGetUvIndex() {
-    // TODO: fetch UV API, update location, show result, etc.
-    console.log('Get UV Index clicked');
+    fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
+  }
+
+  function autoLocateAndFetch() {
+    if (!navigator.geolocation) {
+      console.log('Geolocation not supported, using default location');
+      fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        console.log('User location:', lat, lon);
+        fetchClothingData(lat, lon);
+      },
+      function (error) {
+        console.warn('Geolocation error:', error.message);
+        console.log('Using default location');
+        fetchClothingData(DEFAULT_LAT, DEFAULT_LON);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
+  }
+
+  function fetchSunscreenData(lat, lon) {
+    fetch(API_BASE + '/sunscreen-dosage?lat=' + lat + '&lon=' + lon)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Failed to fetch sunscreen data: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        console.log('Sunscreen API response:', data);
+
+        var parsed = data;
+        if (typeof data.body === 'string') {
+          parsed = JSON.parse(data.body);
+        }
+
+        var uvBadge = document.getElementById('sunscreen-uv-badge');
+        if (uvBadge) {
+          uvBadge.textContent = 'UV ' + parsed.uv_index;
+          var riskClass = parsed.risk_level.toLowerCase().replace(' ', '-');
+          uvBadge.className = 'uv-badge ' + riskClass;
+        }
+
+        var locationEl = document.getElementById('sunscreen-location');
+        if (locationEl) {
+          locationEl.textContent = 'Based on your current location • ' + parsed.risk_level + ' risk';
+        }
+
+        var descEl = document.getElementById('sunscreen-description');
+        if (descEl) {
+          descEl.textContent = parsed.protection_explanation;
+        }
+
+        var amountEl = document.getElementById('sunscreen-amount');
+        if (amountEl && parsed.dosage) {
+          amountEl.textContent = parsed.dosage.tsp + ' tsp / ' + parsed.dosage.pumps + ' pumps';
+        }
+
+        var reapplyEl = document.getElementById('sunscreen-reapply');
+        if (reapplyEl && parsed.dosage) {
+          reapplyEl.textContent = 'Every ' + parsed.dosage.reapply_minutes + ' minutes';
+        }
+
+        var guidanceEl = document.getElementById('sunscreen-guidance');
+        if (guidanceEl && Array.isArray(parsed.guidance)) {
+          guidanceEl.innerHTML = '';
+          parsed.guidance.forEach(function (tip) {
+            var li = document.createElement('li');
+            li.textContent = tip;
+            guidanceEl.appendChild(li);
+          });
+        }
+      })
+      .catch(function (error) {
+        console.error('Failed to fetch sunscreen data:', error);
+        var descEl = document.getElementById('sunscreen-description');
+        if (descEl) {
+          descEl.textContent = 'Could not load sunscreen recommendation. Please try again later.';
+        }
+      });
+  }
+
+  function autoLocateAndFetchSunscreen() {
+    if (!navigator.geolocation) {
+      console.log('Geolocation not supported, using default location for sunscreen');
+      fetchSunscreenData(DEFAULT_LAT, DEFAULT_LON);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        console.log('User location for sunscreen:', lat, lon);
+        fetchSunscreenData(lat, lon);
+      },
+      function (error) {
+        console.warn('Geolocation error for sunscreen:', error.message);
+        fetchSunscreenData(DEFAULT_LAT, DEFAULT_LON);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
   }
 
   function onOptionClick(optionId, event) {
@@ -170,6 +319,16 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
 
     if (document.getElementById('news-list')) {
       loadLatestNews();
+    }
+
+    // automatically locate user position and load UV and weather data
+    if (document.getElementById('uvValue')) {
+      autoLocateAndFetch();
+    }
+
+    // automatically load sunscreen data on sunscreen-guide page
+    if (document.getElementById('sunscreen-uv-badge')) {
+      autoLocateAndFetchSunscreen();
     }
 
     document.querySelectorAll('[data-action="option"]').forEach(function (card) {
