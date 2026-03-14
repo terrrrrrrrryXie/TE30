@@ -21,7 +21,7 @@ def get_risk_level(uv):
 
 
 def get_clothing_recommendation(uv):
-    """Returns recommended materials and items based on UV level."""
+
     if uv < 3:
         return {
             "materials": [
@@ -74,7 +74,6 @@ def get_clothing_recommendation(uv):
         }
 
     else:
-        # Extreme UV - go full ninja mode
         return {
             "materials": [
                 "UPF-rated clothing",
@@ -89,7 +88,7 @@ def get_clothing_recommendation(uv):
 
 
 def get_clothing_explanation(uv):
-    """Explains why we recommend these clothes."""
+
     if uv < 3:
         return (
             "Light clothing and basic sun protection are usually sufficient "
@@ -125,9 +124,41 @@ def get_clothing_explanation(uv):
             "minimise direct sun exposure."
         )
 
+def get_weather_condition(weather_code):
+    weather_map = {
+        0: "Clear sky",
+        1: "Mainly clear",
+        2: "Partly cloudy",
+        3: "Overcast",
+        45: "Fog",
+        48: "Depositing rime fog",
+        51: "Light drizzle",
+        53: "Moderate drizzle",
+        55: "Dense drizzle",
+        56: "Light freezing drizzle",
+        57: "Dense freezing drizzle",
+        61: "Slight rain",
+        63: "Moderate rain",
+        65: "Heavy rain",
+        66: "Light freezing rain",
+        67: "Heavy freezing rain",
+        71: "Slight snow fall",
+        73: "Moderate snow fall",
+        75: "Heavy snow fall",
+        77: "Snow grains",
+        80: "Slight rain showers",
+        81: "Moderate rain showers",
+        82: "Violent rain showers",
+        85: "Slight snow showers",
+        86: "Heavy snow showers",
+        95: "Thunderstorm",
+        96: "Thunderstorm with slight hail",
+        99: "Thunderstorm with heavy hail"
+    }
+    return weather_map.get(weather_code, "Unknown")
+
 
 def lambda_handler(event, context):
-    """Main handler - fetches UV data and returns clothing advice."""
     try:
 
         params = event.get("queryStringParameters") or {}
@@ -135,26 +166,34 @@ def lambda_handler(event, context):
         lat = float(params.get("lat", "-37.8136"))
         lon = float(params.get("lon", "144.9631"))
 
-        # Fetch UV index from Open-Meteo
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=uv_index"
+        url = (
+            f"https://api.open-meteo.com/v1/forecast"
+            f"?latitude={lat}&longitude={lon}"
+            f"&current=temperature_2m,weather_code"
+            f"&hourly=uv_index"
+        )
 
         response = urllib.request.urlopen(url, timeout=3)
 
         data = json.loads(response.read())
 
-        print(data)  # CloudWatch logging
+        print(data)
 
-        uv_index = data["current"]["uv_index"]
-        current_time = data["current"]["time"]
+        current = data.get("current", {})
+        hourly = data.get("hourly", {})
+        uv_index = hourly.get("uv_index", [0])[0]
+        temperature = current.get("temperature_2m")
+        weather_code = current.get("weather_code")
+        current_time = current.get("time")
 
-        # Get all the recommendations
+        if uv_index is None:
+            raise ValueError("UV index not found in weather response")
+
         risk = get_risk_level(uv_index)
-
         clothing = get_clothing_recommendation(uv_index)
-
         explanation = get_clothing_explanation(uv_index)
+        condition = get_weather_condition(weather_code)
 
-        # Build response
         result = {
 
             "location": {
@@ -165,6 +204,12 @@ def lambda_handler(event, context):
             "uv_index": uv_index,
 
             "risk_level": risk,
+
+            "temperature": temperature,
+
+            "weather_code": weather_code,
+
+            "condition": condition,
 
             "clothing_materials": clothing["materials"],
 
@@ -178,7 +223,9 @@ def lambda_handler(event, context):
         return {
             "statusCode": 200,
             "headers": {
-                "Access-Control-Allow-Origin": "*"
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS"
             },
             "body": json.dumps(result)
         }
@@ -190,7 +237,9 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "headers": {
-                "Access-Control-Allow-Origin": "*"
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS"
             },
             "body": json.dumps({
                 "error": str(e)
