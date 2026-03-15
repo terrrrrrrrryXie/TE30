@@ -3,6 +3,7 @@
  */
 
 var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1';
+var QUIZ_ENDPOINT = '/sunChampion';
 
 (function () {
   'use strict';
@@ -144,6 +145,100 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
         maximumAge: 300000
       }
     );
+  }
+
+    function fetchQuizTips(lat, lon) {
+
+    fetch(API_BASE + '/sunChampion?lat=' + lat + '&lon=' + lon)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Failed to fetch quiz data: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(function (data) {
+
+        console.log("Quiz API response:", data);
+
+        var parsed = data;
+        if (typeof data.body === 'string') {
+          parsed = JSON.parse(data.body);
+        }
+
+        var checklistEl = document.getElementById("quiz-checklist");
+        var statusEl = document.getElementById("quiz-status");
+
+        if (!checklistEl) return;
+
+        checklistEl.innerHTML = "";
+
+        if (statusEl) {
+          statusEl.textContent =
+            "UV Index " + parsed.uv_index + " • " + parsed.risk_level + " risk";
+        }
+
+        parsed.tips.forEach(function (tip, index) {
+
+          var label = document.createElement("label");
+          label.className = "quiz-item";
+
+          var checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.className = "quiz-checkbox";
+
+          var span = document.createElement("span");
+          span.textContent = tip;
+
+          checkbox.addEventListener("change", checkQuizCompletion);
+
+          label.appendChild(checkbox);
+          label.appendChild(span);
+
+          checklistEl.appendChild(label);
+        });
+
+      })
+      .catch(function (error) {
+        console.error("Quiz fetch error:", error);
+
+        var statusEl = document.getElementById("quiz-status");
+        if (statusEl) {
+          statusEl.textContent = "Could not load sun safety checklist.";
+        }
+      });
+  }
+
+  function checkQuizCompletion() {
+
+  var checkboxes = document.querySelectorAll(".quiz-checkbox");
+  var button = document.getElementById("quiz-complete-btn");
+
+  if (!checkboxes.length || !button) return;
+
+  var allChecked = true;
+
+  checkboxes.forEach(function (box) {
+    if (!box.checked) {
+      allChecked = false;
+    }
+  });
+
+  button.disabled = !allChecked;
+}
+
+  function completeQuiz() {
+
+    var resultEl = document.getElementById("quiz-result");
+    var celebration = document.getElementById("quiz-celebration");
+
+    if (resultEl) {
+      resultEl.textContent =
+        "Congratulations! You are a Sun Champion today!";
+    }
+
+    if (celebration) {
+      celebration.style.display = "block";
+    }
   }
 
   function fetchSunscreenData(lat, lon, isDefault) {
@@ -917,6 +1012,29 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     // automatically locate user position and load UV and weather data
     if (document.getElementById('uvValue')) {
       autoLocateAndFetch();
+    }
+
+     //sun Champion quiz function call
+    if (document.getElementById("quiz-checklist")) {
+
+      locatUser(function (location) {
+
+        if (location) {
+          fetchQuizTips(location.lat, location.lon);
+        } else {
+          fetchQuizTips(DEFAULT_LAT, DEFAULT_LON);
+        }
+
+      });
+
+      var completeBtn = document.getElementById("quiz-complete-btn");
+
+      if (completeBtn) {
+        completeBtn.addEventListener("click", function () {
+          completeQuiz();
+        });
+      }
+
     }
 
     if (document.getElementById('visual-graph')) {
