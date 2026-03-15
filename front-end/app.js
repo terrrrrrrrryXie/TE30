@@ -325,8 +325,8 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
   }
 
   // Skin type selection (UV Skin Type page)
-  function onSkinTypeSelect(typeId, swatchElement) {
-    console.log('Skin type selected:', typeId);
+  async function onSkinTypeSelect(typeId, swatchElement) {
+    console.log('Skin type selected:', typeId[4]);
 
     document.querySelectorAll('[data-action="skin-type"]').forEach(function (el) {
       el.classList.toggle('selected', el === swatchElement);
@@ -352,6 +352,198 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     if (chipEl) {
       chipEl.className = 'skin-chip chip-' + typeId;
     }
+
+    const getAdvice_url = API_BASE + `/getSkinTypeAdvice?skin_type=${typeId[4]}`;
+
+    const res_1 = await fetch(getAdvice_url, {
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+    const advice = await res_1.json();
+    console.log(advice);
+
+
+    const getKnowledge_url = API_BASE + `/getSkinTypeKnowledge?skin_type=${typeId[4]}`;
+
+    const res_2 = await fetch(getKnowledge_url, {
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+    const knowledge = await res_2.json();
+    console.log(knowledge);
+
+    createSkinTypeAdviceElement(advice)
+    createSkinTypeKnowledgeElement(knowledge)
+  }
+
+  function createSkinTypeAdviceElement(advice) {
+    if (document.getElementById("skinTypeAdvice")) {
+      document.getElementById("skinTypeAdvice").remove()
+    }
+    const section = document.createElement("section");
+    section.className = "skin-type-selection";
+    section.id = "skinTypeAdvice"
+
+    // Title
+    const title = document.createElement("h2");
+    title.className = "page-title";
+    title.textContent = `You Selected:`;
+    section.appendChild(title);
+
+    // Card
+    const card = document.createElement("div");
+    card.className = "skin-type-selected-card";
+
+    const textDiv = document.createElement("div");
+    textDiv.className = "skin-selected-text";
+
+    const skinTitle = document.createElement("div");
+    skinTitle.id = "selected-skin-title";
+    skinTitle.className = "skin-selected-title";
+    skinTitle.textContent = advice.name;
+
+    const description = document.createElement("p");
+    description.id = "selected-skin-description";
+    description.className = "muted";
+    description.textContent = advice.description;
+
+    textDiv.appendChild(skinTitle);
+    textDiv.appendChild(description);
+    card.appendChild(textDiv);
+
+    section.appendChild(card);
+
+    // Stats
+    const stats = document.createElement("div");
+    stats.className = "skin-stats";
+
+    const stat = document.createElement("div");
+    stat.className = "skin-stat";
+    stat.style.width = "100%";
+    stat.style.marginBottom = "20px";
+    stat.innerHTML = `
+    UV Sensitivity
+    <span id="selected-uv-sensitivity">${advice.sunburn_risk}</span>`;
+
+    stats.appendChild(stat);
+    section.appendChild(stats);
+
+    // List
+    const ul = document.createElement("ul");
+    ul.className = "list-group";
+
+
+    advice.recommendations.forEach(text => {
+      const li = document.createElement("li");
+      li.className = "list-group-item";
+      li.textContent = text;
+      ul.appendChild(li);
+    });
+
+    section.appendChild(ul);
+    document.getElementById("skinTypeContent").appendChild(section)
+  }
+
+  function createSkinTypeKnowledgeElement(data) {
+    if (document.getElementById("tableParent")) {
+      document.getElementById("tableParent").remove()
+    }
+    const table_parent = document.createElement("div")
+    table_parent.id = "tableParent"
+    table_parent.setAttribute("style", "padding: 14px; background-color: white; margin-top: 20px; border-radius: 8px;")
+
+    const table_title = document.createElement("p")
+    table_title.innerHTML = "Experimental MED Data Across Countries for Choosed Fitzpatrick Skin Types"
+    table_title.setAttribute("style", "width: 100%; font-size: 1.2rem; font-weight: bold")
+    table_parent.appendChild(table_title)
+
+    const table = document.createElement("table");
+    table.className = "table";
+    table.id = "knowledgeTable"
+
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+
+    const headers = [
+      "#",
+      "Country",
+      "Skin Type",
+      "Sample size",
+      `MED (mJ/cm²)`,
+      "SD",
+      "Irradiated Skin"
+    ];
+
+    headers.forEach(text => {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.textContent = text;
+      headRow.appendChild(th);
+    });
+
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    data.forEach((item, index) => {
+      const tr = document.createElement("tr");
+
+      const rowNumber = document.createElement("th");
+      rowNumber.scope = "row";
+      rowNumber.textContent = index + 1;
+      tr.appendChild(rowNumber);
+
+      const tdCountry = document.createElement("td");
+      tdCountry.textContent = item.Country ?? "";
+      tr.appendChild(tdCountry);
+
+      const tdSkinType = document.createElement("td");
+      tdSkinType.textContent = item["Skin Type"] ?? "";
+      tr.appendChild(tdSkinType);
+
+      const tdSampleSize = document.createElement("td");
+      tdSampleSize.textContent = item["Sample size"] ?? "";
+      tr.appendChild(tdSampleSize);
+
+      const tdMed = document.createElement("td");
+      if (item.MED && typeof item.MED === "object") {
+        tdMed.textContent = `${item.MED.value} (${item.MED.type})`;
+      } else {
+        tdMed.textContent = "";
+      }
+      tr.appendChild(tdMed);
+
+      const tdSD = document.createElement("td");
+      tdSD.textContent = item.SD ?? "";
+      tr.appendChild(tdSD);
+
+      const tdSkin = document.createElement("td");
+      tdSkin.textContent = item["Irradiated Skin"] ?? "";
+      tr.appendChild(tdSkin);
+
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    table_parent.appendChild(table)
+
+    const data_source = document.createElement("p");
+    data_source.id = "reference";
+    data_source.textContent = "Data source: ";
+    const data_sourcelink = document.createElement("a");
+    data_sourcelink.id = "dataSource"
+    data_sourcelink.href = "https://www.researchgate.net/publication/342129646_Minimal_Erythema_Dose_Correlation_with_Fitzpatrick_Skin_Type_and_Concordance_Between_Methods_of_Erythema_Assessment_in_a_Patient_Sample_in_Colombia";
+    data_sourcelink.textContent = "Data adapted from Valbuena et al. (2020).";
+    data_sourcelink.style.color = "black";
+    data_sourcelink.style.whiteSpace = "nowrap";
+
+    data_source.appendChild(data_sourcelink);
+    table_parent.appendChild(data_source);
+
+    document.querySelector("main").appendChild(table_parent)
   }
 
   function escapeHtml(value) {
@@ -853,6 +1045,8 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
           console.log(uv_index);
           document.getElementById("uvIndex").innerHTML = `UV ${uv_index.current_uv_index}`
 
+          console.log('sssssssss', uv_index.current_uv_index, address_data.address.city, address_data.address.state);
+          
           const getTips_url = API_BASE + `/getTips?uv_index=${uv_index.current_uv_index}&city=${address_data.address.city}&state=${address_data.address.state}`;
 
           const res_3 = await fetch(getTips_url, {
@@ -878,8 +1072,6 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
 
       })
     }
-
-
 
     document.querySelectorAll('[data-action="option"]').forEach(function (card) {
       card.addEventListener('click', function (e) {
