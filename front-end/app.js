@@ -147,7 +147,7 @@ var QUIZ_ENDPOINT = '/sunChampion';
     );
   }
 
-    function fetchQuizTips(lat, lon) {
+  function fetchQuizTips(lat, lon) {
 
     fetch(API_BASE + '/sunChampion?lat=' + lat + '&lon=' + lon)
       .then(function (response) {
@@ -210,21 +210,21 @@ var QUIZ_ENDPOINT = '/sunChampion';
 
   function checkQuizCompletion() {
 
-  var checkboxes = document.querySelectorAll(".quiz-checkbox");
-  var button = document.getElementById("quiz-complete-btn");
+    var checkboxes = document.querySelectorAll(".quiz-checkbox");
+    var button = document.getElementById("quiz-complete-btn");
 
-  if (!checkboxes.length || !button) return;
+    if (!checkboxes.length || !button) return;
 
-  var allChecked = true;
+    var allChecked = true;
 
-  checkboxes.forEach(function (box) {
-    if (!box.checked) {
-      allChecked = false;
-    }
-  });
+    checkboxes.forEach(function (box) {
+      if (!box.checked) {
+        allChecked = false;
+      }
+    });
 
-  button.disabled = !allChecked;
-}
+    button.disabled = !allChecked;
+  }
 
   function completeQuiz() {
 
@@ -997,6 +997,24 @@ var QUIZ_ENDPOINT = '/sunChampion';
     )
   }
 
+  function getRisk(uv) {
+    if (uv < 3) {
+      return "Low"
+    }
+    else if (uv < 6) {
+      return "Moderate"
+    }
+    else if (uv < 8) {
+      return "High"
+    }
+    else if (uv < 11) {
+      return "Very High"
+    }
+    else {
+      return "Extreme"
+    }
+  }
+
   function init() {
     document.querySelectorAll('[data-action="get-uv-index"]').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
@@ -1014,7 +1032,7 @@ var QUIZ_ENDPOINT = '/sunChampion';
       autoLocateAndFetch();
     }
 
-     //sun Champion quiz function call
+    //sun Champion quiz function call
     if (document.getElementById("quiz-checklist")) {
 
       locatUser(function (location) {
@@ -1121,6 +1139,8 @@ var QUIZ_ENDPOINT = '/sunChampion';
       autoLocateAndFetchUvTracker();
     }
 
+
+
     if (document.getElementById("getTipsByLocation")) {
       document.getElementById("getTipsByLocation").addEventListener('click', function (e) {
         const container = document.createElement("div");
@@ -1161,10 +1181,10 @@ var QUIZ_ENDPOINT = '/sunChampion';
           });
           const uv_index = await res_2.json();
           console.log(uv_index);
-          document.getElementById("uvIndex").innerHTML = `UV ${uv_index.current_uv_index}`
+          document.getElementById("uvIndex").innerHTML = `${uv_index.current_uv_index} - ${getRisk(uv_index.current_uv_index)}`
 
-          console.log('sssssssss', uv_index.current_uv_index, address_data.address.city, address_data.address.state);
-          
+          // console.log('sssssssss', uv_index.current_uv_index, address_data.address.city, address_data.address.state);
+
           const getTips_url = API_BASE + `/getTips?uv_index=${uv_index.current_uv_index}&city=${address_data.address.city}&state=${address_data.address.state}`;
 
           const res_3 = await fetch(getTips_url, {
