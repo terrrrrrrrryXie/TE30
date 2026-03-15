@@ -767,3 +767,120 @@ body.page-home main {
 .news-desc {
   color: var(--text-muted);
 }
+
+.options-row-quiz {
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.option-btn-quiz {
+  background: #ff4fa3;
+  color: #ffffff;
+  width: min(100%, 520px);
+  text-align: center;
+  font-weight: 700;
+}
+
+.option-btn-quiz:hover {
+  background: #e63b8e;
+}
+
+.quiz-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.quiz-intro {
+  margin-bottom: 18px;
+}
+
+.quiz-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 18px 0 22px;
+}
+
+.quiz-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff8cc;
+  border: 2px solid #f2d96b;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.quiz-item input[type="checkbox"] {
+  margin-top: 3px;
+  transform: scale(1.2);
+}
+
+.quiz-actions {
+  margin-top: 10px;
+}
+
+.primary-btn {
+  background: #ff4fa3;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-btn:disabled {
+  background: #d9d9d9;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.quiz-result {
+  margin-top: 20px;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.quiz-celebration {
+  display: none;
+}
+
+.quiz-celebration.active {
+  display: block;
+}
+
+.celebration-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 79, 163, 0.25) 0 12px, transparent 13px),
+    radial-gradient(circle at 75% 30%, rgba(255, 196, 0, 0.25) 0 14px, transparent 15px),
+    radial-gradient(circle at 30% 75%, rgba(255, 140, 0, 0.22) 0 10px, transparent 11px),
+    radial-gradient(circle at 80% 80%, rgba(255, 79, 163, 0.22) 0 16px, transparent 17px);
+  pointer-events: none;
+  animation: popGlow 1.2s ease-in-out infinite alternate;
+}
+
+.celebration-message {
+  position: relative;
+  margin-top: 18px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #d63384;
+}
+
+@keyframes popGlow {
+  from {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+}
