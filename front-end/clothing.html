@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clothing Recommendation - Happy Sun</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">
+      <span class="brand-logo">
+        <img src="images/logo.png" alt="" class="header-logo-img" />
+      </span>
+      <span class="brand-name">Happy Sun</span>
+      <span class="brand-tagline">Your Sun Protection Partner</span>
+    </a>
+  </header>
+
+  <main>
+    <nav class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span>›</span>
+      <span>Clothing Recommendation</span>
+    </nav>
+
+    <div class="content-card">
+      <h2>Current UV &amp; Weather</h2>
+      <form class="form-inline">
+        <input
+          type="text"
+          id="locationInput"
+          placeholder="Enter location (e.g. Clayton VIC)"
+        />
+        <button
+          type="button"
+          class="get-uv-btn"
+          data-action="get-uv-index"
+        >
+          Get UV &amp; weather
+        </button>
+      </form>
+
+      <div class="two-col">
+        <div class="mini-card">
+          <h3>UV Index</h3>
+          <p class="big" id="uvValue">--</p>
+          <p class="muted" id="riskValue">Risk category: --</p>
+        </div>
+        <div class="mini-card">
+          <h3>Temperature</h3>
+          <p class="big" id="tempValue">-- °C</p>
+          <p class="muted" id="conditionValue">Conditions: --</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h2>Suggested Materials</h2>
+      <ul class="bullet" id="materialsList">
+        <li>Tightly woven fabrics (denim, canvas, polyester blends).</li>
+        <li>UPF-rated clothing for extended outdoor time.</li>
+        <li>Darker or bright colours can block more UV than pale colours.</li>
+      </ul>
+    </div>
+
+    <div class="content-card">
+      <h2>Outfit Recommendations</h2>
+      <ul class="bullet" id="itemsList">
+        <li>Wide-brimmed hat and UV-blocking sunglasses.</li>
+        <li>Long-sleeved shirt and long pants when UV is high or extreme.</li>
+        <li>Lightweight, breathable fabrics to stay cool while protected.</li>
+      </ul>
+
+      <p class="muted" id="explanationText"></p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© Happy Sun — Your Sun Protection Partner</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
