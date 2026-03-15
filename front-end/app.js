@@ -447,7 +447,7 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     const email = document.getElementById("email-input").value;
     const API_URL = "https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1//get-sunscreen-reminder";
     const payload = {
-       email: email
+      email: email
     };
 
     try {
@@ -468,6 +468,230 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     }
   }
 
+  // first diagram
+  function visualizeAgeData(data) {
+
+    const labels = data.map(d => d.age_group);
+
+    const sunscreen = data.map(d => Number(d.sunscreen_pct));
+    const hat = data.map(d => Number(d.hat_pct));
+    const shade = data.map(d => Number(d.shade_pct));
+    const sunburn = data.map(d => Number(d.sunburn_pct));
+    const tanning = data.map(d => Number(d.tanning_pct));
+
+    const ctx = document.getElementById("firChart").getContext("2d");
+
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Sunscreen",
+            data: sunscreen
+          },
+          {
+            label: "Hat",
+            data: hat
+          },
+          {
+            label: "Shade",
+            data: shade
+          },
+          {
+            label: "Sunburn",
+            data: sunburn
+          },
+          {
+            label: "Tanning",
+            data: tanning
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Age Group"
+            }
+          },
+          y: {
+            beginAtZero: true,
+            max: 1,
+            title: {
+              display: true,
+              text: "Proportion"
+            }
+          }
+        }
+      }
+    });
+
+  }
+
+  // second diagram
+  function visualizeRateTrend(data) {
+
+    const labels = data.map(d => d.year);
+    const rates = data.map(d => Number(d.persons_rate));
+
+    const ctx = document.getElementById("secChart").getContext("2d");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Sunburn Rate",
+            data: rates,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Year"
+            }
+          },
+          y: {
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: "Percentage of Persons (%)"
+            }
+          }
+        }
+      }
+    })
+  }
+
+  // Third diagram
+  let monthlyUVIndex = null;
+  function visualizeMonthlyUV(data, city) {
+    data = data.filter(item => item.city == city)
+
+    const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    const sortedData = [...data].sort(
+      (a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month)
+    );
+
+    const labels = sortedData.map(d => d.month);
+    const uvValues = sortedData.map(d => Number(d.uv_index));
+
+    const ctx = document.getElementById("thrChart").getContext("2d");
+
+    if (monthlyUVIndex) {
+      monthlyUVIndex.destroy();
+    }
+
+    monthlyUVIndex = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: `UV Index`,
+            data: uvValues,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: "Monthly UV Index in " + city
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Month"
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: "UV Index"
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function loadData(file_name) {
+    fetch(API_BASE + '/fetchData?file_name=' + file_name)
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Failed to fetch news: ' + response.status);
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        var parsed = data;
+        if (typeof data.body === 'string') {
+          parsed = JSON.parse(data.body);
+        }
+        console.log(parsed);
+        
+        var title = document.getElementById("table_title")
+        if (file_name == 'age_sun_protection.csv') {
+          title.innerHTML = 'Sun Protection Behaviour by Age Group'
+          visualizeAgeData(parsed)
+        }
+        else if (file_name == 'melanoma_stats_clean.csv') {
+          title
+          visualizeRateTrend(parsed)
+        }
+        else if (file_name == 'bom_uv_clean.csv') {
+          title.innerHTML = "Monthly UV Index by City in Australia"
+          const city_select = document.createElement("select");
+          city_select.id = "selectCity";
+          city_select.className = "form-select";
+          city_select.setAttribute("aria-label", "Default select example");
+          city_select.setAttribute("size", "3");
+          const cities = [...new Set(parsed.map(item => item.city))]
+            .map(city => ({
+              value: city,
+              text: city
+            }));
+
+          cities.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.value;
+            option.textContent = item.text;
+            city_select.appendChild(option);
+          });
+
+          city_select.addEventListener("change", function () {
+            console.log("show:", this.value);
+            visualizeMonthlyUV(parsed, this.value)
+          });
+
+          document.getElementById("city_selectContainer").appendChild(city_select);
+
+        }
+      })
+      .catch(function (error) {
+        console.error('Failed to load news:', error);
+        if (statusEl) {
+          statusEl.textContent = 'Could not load latest UV news.';
+        }
+      });
+  }
+
   function init() {
     document.querySelectorAll('[data-action="get-uv-index"]').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
@@ -483,6 +707,80 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     // automatically locate user position and load UV and weather data
     if (document.getElementById('uvValue')) {
       autoLocateAndFetch();
+    }
+
+    if (document.getElementById('visual-graph')) {
+      document.getElementById("selectData").addEventListener("change", function () {
+
+        let value = this.value;
+        document.getElementById('visual-graph').style.display = 'block'
+        document.getElementById("firChart").style.display = "none";
+        document.getElementById("secChart").style.display = "none";
+        document.getElementById("thrChart").style.display = "none";
+        document.getElementById("forChart").style.display = "none";
+        if (document.getElementById("dataSource") || document.getElementById("reference")) {
+          document.getElementById("dataSource").remove()
+          document.getElementById("reference").remove()
+        }
+        
+        if (document.getElementById("selectCity")) {
+          document.getElementById("selectCity").remove()
+        }
+
+        if (value === "1") {
+          document.getElementById("firChart").style.display = "block";
+          loadData('age_sun_protection.csv')
+
+          const p = document.createElement("p");
+          p.id = "reference";
+          p.textContent = "Data provided by ";
+          const link = document.createElement("a");
+          link.id = "dataSource"
+          link.href = "https://www.abs.gov.au/statistics/health/health-conditions-and-risks/sun-protection-behaviours/latest-release";
+          link.textContent = "Australian Bureau of Statistics";
+          link.style.color = "black";
+          link.style.whiteSpace = "nowrap";
+
+          p.appendChild(link);
+          document.getElementById('visual-graph').appendChild(p);
+        }
+
+        if (value === "2") {
+          document.getElementById("secChart").style.display = "block";
+          loadData('melanoma_stats_clean.csv')
+
+          const p = document.createElement("p");
+          p.id = "reference";
+          p.textContent = "Data provided by ";
+          const link = document.createElement("a");
+          link.id = "dataSource"
+          link.href = "https://www.canceraustralia.gov.au/cancer-types/melanoma-skin/melanoma-skin-statistics";
+          link.textContent = "Australian Government - Cancer Australia";
+          link.style.color = "black";
+          link.style.whiteSpace = "nowrap";
+
+          p.appendChild(link);
+          document.getElementById('visual-graph').appendChild(p);
+        }
+
+        if (value === "3") {
+          document.getElementById("thrChart").style.display = "block";
+          loadData('bom_uv_clean.csv')
+
+          const p = document.createElement("p");
+          p.id = "reference";
+          p.textContent = "Data provided by ";
+          const link = document.createElement("a");
+          link.id = "dataSource"
+          link.href = "https://www.bom.gov.au/climate/maps/averages/uv-index/";
+          link.textContent = "Australian Government - Bureau of Meteorology";
+          link.style.color = "black";
+          link.style.whiteSpace = "nowrap";
+
+          p.appendChild(link);
+          document.getElementById('visual-graph').appendChild(p);
+        }
+      });
     }
 
     // automatically load sunscreen data on sunscreen-guide page
