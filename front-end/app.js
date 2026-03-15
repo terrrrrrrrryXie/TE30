@@ -645,7 +645,7 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
           parsed = JSON.parse(data.body);
         }
         console.log(parsed);
-        
+
         var title = document.getElementById("table_title")
         if (file_name == 'age_sun_protection.csv') {
           title.innerHTML = 'Sun Protection Behaviour by Age Group'
@@ -692,6 +692,24 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
       });
   }
 
+  function locatUser(callback) {
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+
+        const location = {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        }
+
+        callback(location)
+
+      },
+      function (error) {
+        console.warn(error.message)
+      }
+    )
+  }
+
   function init() {
     document.querySelectorAll('[data-action="get-uv-index"]').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
@@ -722,7 +740,7 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
           document.getElementById("dataSource").remove()
           document.getElementById("reference").remove()
         }
-        
+
         if (document.getElementById("selectCity")) {
           document.getElementById("selectCity").remove()
         }
@@ -792,6 +810,76 @@ var API_BASE = 'https://ubwyrwtkcc.execute-api.ap-southeast-2.amazonaws.com/dev1
     if (document.getElementById('tracker-uv-badge')) {
       autoLocateAndFetchUvTracker();
     }
+
+    if (document.getElementById("getTipsByLocation")) {
+      document.getElementById("getTipsByLocation").addEventListener('click', function (e) {
+        const container = document.createElement("div");
+        container.className = "d-flex justify-content-center";
+
+        const spinner = document.createElement("div");
+        spinner.className = "spinner-border";
+        spinner.setAttribute("role", "status");
+
+        const span = document.createElement("span");
+        span.className = "visually-hidden";
+        span.textContent = "Loading...";
+
+        spinner.appendChild(span);
+        container.appendChild(spinner);
+
+        document.getElementById("getTipsByLocationParent").appendChild(container);
+        document.getElementById("getTipsByLocation").remove()
+        locatUser(async function (location) {
+          console.log(location)
+          const convert_location_url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${location.lat}&lon=${location.lon}`;
+
+          const res_1 = await fetch(convert_location_url, {
+            headers: {
+              "Accept": "application/json"
+            }
+          });
+          const address_data = await res_1.json();
+          console.log(address_data);
+          document.getElementById("userLocation").innerHTML = `Location: ${address_data.address.city}, ${address_data.address.state}`
+
+          const fetchUVIndex_url = API_BASE + `/getUV?lat=${location.lat}&lon=${location.lon}`;
+
+          const res_2 = await fetch(fetchUVIndex_url, {
+            headers: {
+              "Accept": "application/json"
+            }
+          });
+          const uv_index = await res_2.json();
+          console.log(uv_index);
+          document.getElementById("uvIndex").innerHTML = `UV ${uv_index.current_uv_index}`
+
+          const getTips_url = API_BASE + `/getTips?uv_index=${uv_index.current_uv_index}&city=${address_data.address.city}&state=${address_data.address.state}`;
+
+          const res_3 = await fetch(getTips_url, {
+            headers: {
+              "Accept": "application/json"
+            }
+          });
+          const tips = await res_3.json();
+          console.log(tips);
+
+          document.getElementById("tipsList").innerHTML = ''
+          document.getElementById("tipsPlaceholder").remove()
+          for (let index = 0; index < tips.final_tips.length; index++) {
+            var tip = document.createElement('li');
+            tip.textContent = tips.final_tips[index];
+            tip.setAttribute("data-num", index + 1)
+            document.getElementById("tipsList").appendChild(tip);
+
+          }
+          document.getElementById("buttonBar").remove()
+
+        })
+
+      })
+    }
+
+
 
     document.querySelectorAll('[data-action="option"]').forEach(function (card) {
       card.addEventListener('click', function (e) {
