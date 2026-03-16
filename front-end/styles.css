@@ -767,3 +767,119 @@ body.page-home main {
 .news-desc {
   color: var(--text-muted);
 }
+
+
+.options-row-quiz {
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.option-btn-quiz {
+  background: #ff4fa3;
+  color: #ffffff;
+  width: min(100%, 520px);
+  text-align: center;
+  font-weight: 700;
+}
+
+.option-btn-quiz:hover {
+  background: #e63b8e;
+}
+
+/* Sun Safe Quiz page */
+.quiz-card {
+  position: relative;
+}
+
+.quiz-intro {
+  margin-bottom: 1rem;
+  color: var(--text-muted);
+}
+
+.quiz-checklist {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.quiz-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: var(--warm-cream);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+
+.quiz-checkbox {
+  margin-top: 0.2rem;
+  transform: scale(1.15);
+  cursor: pointer;
+}
+
+.quiz-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: center;
+}
+
+.primary-btn {
+  background: var(--button-orange);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.85rem 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-3d);
+}
+
+.primary-btn:hover {
+  background: var(--button-orange-hover);
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.quiz-result {
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--sun-orange);
+}
+
+.quiz-celebration {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
+.quiz-celebration.active {
+  display: block;
+}
+
+.celebration-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 183, 71, 0.2);
+  backdrop-filter: blur(2px);
+}
+
+.celebration-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  color: var(--sun-orange);
+  padding: 1rem 1.5rem;
+  border-radius: 14px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
