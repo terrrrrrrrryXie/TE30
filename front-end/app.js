@@ -386,17 +386,20 @@ function openTikTokForShare() {
   setShareFeedback('TikTok opened. Use Download Image and paste the copied caption there.');
 }
 
- function completeQuiz() {
+function completeQuiz() {
   var resultEl = document.getElementById('quiz-result');
   var celebration = document.getElementById('quiz-celebration');
 
   if (resultEl) {
-    resultEl.textContent =
-      'Congratulations! You are a Sun Champion today!';
+    resultEl.textContent = 'Congratulations! You are a Sun Champion today!';
   }
 
   if (celebration) {
     celebration.classList.add('active');
+
+    setTimeout(function () {
+      celebration.classList.remove('active');
+    }, 2500);
   }
 
   showSharePanel();
@@ -1209,11 +1212,19 @@ function openTikTokForShare() {
       var completeBtn = document.getElementById("quiz-complete-btn");
 
       if (completeBtn) {
-        completeBtn.addEventListener("click", function () {
+        completeBtn.addEventListener("click", function (e) {
+          e.preventDefault();
           completeQuiz();
         });
       }
 
+    }
+
+    var quizForm = document.getElementById('quiz-form');
+    if (quizForm) {
+      quizForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+      });
     }
 
     //share to social media

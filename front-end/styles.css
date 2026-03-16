@@ -857,6 +857,7 @@ body.page-home main {
   position: fixed;
   inset: 0;
   z-index: 999;
+  pointer-events: none;
 }
 
 .quiz-celebration.active {
@@ -868,6 +869,7 @@ body.page-home main {
   inset: 0;
   background: rgba(255, 183, 71, 0.2);
   backdrop-filter: blur(2px);
+  pointer-events: none;
 }
 
 .celebration-message {
@@ -882,6 +884,7 @@ body.page-home main {
   font-size: 1.4rem;
   font-weight: 800;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
 }
 
 .sun-share-panel {
