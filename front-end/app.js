@@ -939,7 +939,7 @@ var QUIZ_ENDPOINT = '/sunChampion';
           visualizeAgeData(parsed)
         }
         else if (file_name == 'melanoma_stats_clean.csv') {
-          title
+          title.innerHTML = "Annual Melanoma Incidence per 100,000 People (All Ages)"
           visualizeRateTrend(parsed)
         }
         else if (file_name == 'bom_uv_clean.csv') {
