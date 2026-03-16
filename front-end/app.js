@@ -226,20 +226,181 @@ var QUIZ_ENDPOINT = '/sunChampion';
     button.disabled = !allChecked;
   }
 
-  function completeQuiz() {
+  function buildSunChampionCaption() {
+  var statusEl = document.getElementById('quiz-status');
+  var statusText = statusEl ? statusEl.textContent.trim() : '';
+  return (
+    "I’m a Happy Sun 🌞 Sun Champion today!\n" +
+    "I completed my sun-safety checklist.\n" +
+    (statusText ? statusText + "\n" : "") +
+    "#SunSafety #HappySun #SunChampion"
+  );
+}
 
-    var resultEl = document.getElementById("quiz-result");
-    var celebration = document.getElementById("quiz-celebration");
+function showSharePanel() {
+  var panel = document.getElementById('sun-share-panel');
+  var cardText = document.getElementById('share-card-text');
 
-    if (resultEl) {
-      resultEl.textContent =
-        "Congratulations! You are a Sun Champion today!";
-    }
+  if (panel) {
+    panel.hidden = false;
+  }
 
-    if (celebration) {
-      celebration.style.display = "block";
+  if (cardText) {
+    cardText.textContent = buildSunChampionCaption().replace(/\n/g, ' ');
+  }
+}
+
+function setShareFeedback(message) {
+  var feedbackEl = document.getElementById('share-feedback');
+  if (feedbackEl) {
+    feedbackEl.textContent = message;
+  }
+}
+
+function copySunChampionCaption() {
+  var caption = buildSunChampionCaption();
+
+  navigator.clipboard.writeText(caption)
+    .then(function () {
+      setShareFeedback('Caption copied. You can now paste it into Instagram or TikTok.');
+    })
+    .catch(function () {
+      setShareFeedback('Could not copy the caption automatically.');
+    });
+}
+
+function shareSunChampionNative() {
+  var caption = buildSunChampionCaption();
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'Happy Sun - Sun Champion',
+      text: caption
+    })
+      .then(function () {
+        setShareFeedback('Shared successfully.');
+      })
+      .catch(function () {
+        setShareFeedback('Share was cancelled or not available.');
+      });
+  } else {
+    setShareFeedback('Sharing is not supported on this device. Use Copy Caption or Download Image.');
+  }
+}
+
+function downloadSunChampionImage() {
+  var card = document.getElementById('sun-share-card');
+  if (!card) {
+    setShareFeedback('Share card not found.');
+    return;
+  }
+
+  var width = 1080;
+  var height = 1080;
+  var canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  var ctx = canvas.getContext('2d');
+
+  // background
+  var gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, '#fff4d6');
+  gradient.addColorStop(1, '#ffe7f3');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // title
+  ctx.fillStyle = '#ff4fa3';
+  ctx.font = 'bold 64px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('🌞 Sun Champion', width / 2, 180);
+
+  // app name
+  ctx.fillStyle = '#ff9800';
+  ctx.font = 'bold 44px Arial';
+  ctx.fillText('Happy Sun', width / 2, 260);
+
+  // message
+  var lines = [
+    'I completed my',
+    'sun-safety checklist today!'
+  ];
+
+  ctx.fillStyle = '#4a3b2f';
+  ctx.font = 'bold 46px Arial';
+  lines.forEach(function (line, index) {
+    ctx.fillText(line, width / 2, 420 + (index * 70));
+  });
+
+  var statusEl = document.getElementById('quiz-status');
+  var statusText = statusEl ? statusEl.textContent.trim() : '';
+  if (statusText) {
+    ctx.fillStyle = '#6d5c50';
+    ctx.font = '36px Arial';
+    wrapCanvasText(ctx, statusText, width / 2, 620, 760, 50);
+  }
+
+  ctx.fillStyle = '#ff4fa3';
+  ctx.font = 'bold 34px Arial';
+  ctx.fillText('#SunSafety #HappySun', width / 2, 900);
+
+  var link = document.createElement('a');
+  link.download = 'sun-champion.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+
+  setShareFeedback('Image downloaded. You can upload it to Instagram or TikTok.');
+}
+
+function wrapCanvasText(ctx, text, centerX, startY, maxWidth, lineHeight) {
+  var words = text.split(' ');
+  var line = '';
+  var y = startY;
+
+  for (var i = 0; i < words.length; i++) {
+    var testLine = line + words[i] + ' ';
+    var testWidth = ctx.measureText(testLine).width;
+
+    if (testWidth > maxWidth && i > 0) {
+      ctx.fillText(line.trim(), centerX, y);
+      line = words[i] + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
     }
   }
+
+  if (line) {
+    ctx.fillText(line.trim(), centerX, y);
+  }
+}
+
+function openInstagramForShare() {
+  window.open('https://www.instagram.com/', '_blank');
+  setShareFeedback('Instagram opened. Use Download Image and paste the copied caption there.');
+}
+
+function openTikTokForShare() {
+  window.open('https://www.tiktok.com/', '_blank');
+  setShareFeedback('TikTok opened. Use Download Image and paste the copied caption there.');
+}
+
+ function completeQuiz() {
+  var resultEl = document.getElementById('quiz-result');
+  var celebration = document.getElementById('quiz-celebration');
+
+  if (resultEl) {
+    resultEl.textContent =
+      'Congratulations! You are a Sun Champion today!';
+  }
+
+  if (celebration) {
+    celebration.classList.add('active');
+  }
+
+  showSharePanel();
+}
 
   function fetchSunscreenData(lat, lon, isDefault) {
     fetch(API_BASE + '/sunscreen-dosage?lat=' + lat + '&lon=' + lon)
@@ -1053,6 +1214,42 @@ var QUIZ_ENDPOINT = '/sunChampion';
         });
       }
 
+    }
+
+    //share to social media
+    var nativeShareBtn = document.getElementById('share-native-btn');
+    if (nativeShareBtn) {
+      nativeShareBtn.addEventListener('click', function () {
+        shareSunChampionNative();
+      });
+    }
+
+    var copyCaptionBtn = document.getElementById('copy-caption-btn');
+    if (copyCaptionBtn) {
+      copyCaptionBtn.addEventListener('click', function () {
+        copySunChampionCaption();
+      });
+    }
+
+    var downloadShareBtn = document.getElementById('download-share-btn');
+    if (downloadShareBtn) {
+      downloadShareBtn.addEventListener('click', function () {
+        downloadSunChampionImage();
+      });
+    }
+
+    var instagramBtn = document.getElementById('open-instagram-btn');
+    if (instagramBtn) {
+      instagramBtn.addEventListener('click', function () {
+        openInstagramForShare();
+      });
+    }
+
+    var tiktokBtn = document.getElementById('open-tiktok-btn');
+    if (tiktokBtn) {
+      tiktokBtn.addEventListener('click', function () {
+        openTikTokForShare();
+      });
     }
 
     if (document.getElementById('visual-graph')) {

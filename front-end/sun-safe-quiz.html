@@ -10,7 +10,7 @@
   <header class="site-header">
     <a href="index.html" class="brand">
       <span class="brand-logo">
-        <img src="images/logo.png" alt="" class="header-logo-img" />
+        <img src="images/logo.png" alt="Happy Sun Logo" class="header-logo-img" />
       </span>
       <span class="brand-name">Happy Sun</span>
       <span class="brand-tagline">Your Sun Protection Partner</span>
@@ -31,31 +31,54 @@
         you can submit and see your rank for the day.
       </p>
 
-    <div id="quiz-status" class="muted">Loading checklist...</div>
+      <div id="quiz-status" class="muted">Loading checklist...</div>
+
       <form id="quiz-form">
         <div id="quiz-checklist" class="quiz-checklist"></div>
       </form>
 
-    <div class="quiz-actions">
-      <button id="quiz-complete-btn" class="primary-btn" disabled>
-        Complete Quiz
-      </button>
-    </div>
-
-    <div id="quiz-result" class="quiz-result" aria-live="polite"></div>
-
-    <div id="quiz-celebration" class="quiz-celebration" aria-hidden="true">
-      <div class="celebration-overlay"></div>
-      <div class="celebration-message">
-        🎉 Sun Champion! 🎉
+      <div class="quiz-actions">
+        <button id="quiz-complete-btn" class="primary-btn" disabled>
+          Complete Quiz
+        </button>
       </div>
-    </div>
+
+      <div id="quiz-result" class="quiz-result" aria-live="polite"></div>
+
+      <div id="sun-share-panel" class="sun-share-panel" hidden>
+        <h3 class="share-title">Share your Sun Champion result</h3>
+
+        <div id="sun-share-card" class="sun-share-card">
+          <div class="share-badge">🌞 Sun Champion</div>
+          <p id="share-card-text" class="share-card-text">
+            I completed my sun-safety checklist today with Happy Sun!
+          </p>
+        </div>
+
+        <div class="share-actions">
+          <button id="share-native-btn" class="secondary-btn" type="button">Share</button>
+          <button id="copy-caption-btn" class="secondary-btn" type="button">Copy Caption</button>
+          <button id="download-share-btn" class="secondary-btn" type="button">Download Image</button>
+          <button id="open-instagram-btn" class="secondary-btn" type="button">Instagram</button>
+          <button id="open-tiktok-btn" class="secondary-btn" type="button">TikTok</button>
+        </div>
+
+        <p id="share-feedback" class="share-feedback" aria-live="polite"></p>
+      </div>
+
+      <div id="quiz-celebration" class="quiz-celebration" aria-hidden="true">
+        <div class="celebration-overlay"></div>
+        <div class="celebration-message">
+          🎉 Sun Champion! 🎉
+        </div>
+      </div>
     </div>
   </main>
 
   <footer class="site-footer">
     <p>© Happy Sun — Your Sun Protection Partner</p>
   </footer>
+
   <script src="app.js"></script>
 </body>
 </html>
