@@ -1100,10 +1100,14 @@ function completeQuiz() {
         var title = document.getElementById("table_title")
         if (file_name == 'age_sun_protection.csv') {
           title.innerHTML = 'Sun Protection Behaviour by Age Group'
+          console.log('a', title.innerHTML);
+          
           visualizeAgeData(parsed)
         }
         else if (file_name == 'melanoma_stats_clean.csv') {
-          title.innerHTML = "Annual Melanoma Incidence per 100,000 People (All Ages)"
+          title.innerHTML = 'Annual Melanoma Incidence per 100,000 People (All Ages)'
+          console.log(title.innerHTML);
+          
           visualizeRateTrend(parsed)
         }
         else if (file_name == 'bom_uv_clean.csv') {
